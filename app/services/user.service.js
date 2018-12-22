@@ -50,4 +50,17 @@ async function validateEmail(userEmail){
   }
 }
 
-module.exports = {register, validateEmail, login};
+async function getUser(data){
+  try {
+    const user = await User.findOne({_id: data._id});
+    if(user){
+      user.password = undefined;
+      return {status: 200, data: user};
+    }
+    return {status: 500, data: {message: "Error getting user: " + e}};
+  } catch (e) {
+    return {status: 500, data: {message: "Error getting user: " + e}};
+  }
+}
+
+module.exports = {register, validateEmail, login, getUser};

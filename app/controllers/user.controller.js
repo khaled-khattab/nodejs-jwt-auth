@@ -2,7 +2,7 @@ const User = require('../services/user.service');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const Joi = require('joi')
+const Joi = require('joi');
 
 async function register(req, res, next){
   try {
@@ -58,4 +58,13 @@ async function login(req, res, next){
   }
 }
 
-module.exports = {register, login}
+async function me(req, res, next){
+  try {
+    const result = await User.getUser(req.body);
+    return res.status(result.status).json(result.data);
+  } catch (e) {
+    return res.status(500).json({message: "Error getting user: "+ e});
+  }
+}
+
+module.exports = {register, login, me};

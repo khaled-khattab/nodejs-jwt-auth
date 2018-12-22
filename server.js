@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
 const userRouter = require('./routes/user.route');
+const authUserRouter = require('./routes/auth.user.route');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 var mongoose = require('mongoose')
 mongoose.connect('mongodb://127.0.0.1:27017/jwt-auth', { useNewUrlParser: true})
   .then(()=> { console.log(`Succesfully Connected to the Mongodb Database  at URL : mongodb://127.0.0.1:27017/jwt-auth`)})
@@ -25,3 +27,15 @@ app.get('/api/test', (req, res)=> {
 });
 
 app.use('/api/user', userRouter);
+app.use('/api/auth/user', async (req, res, next)=>{
+  var token = req.headers['token'];
+  if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+
+  try {
+    const user = await jwt.verify(token, 'secret');
+    req.body._id = user._id
+    next();
+  }catch (e) {
+    return res.status(401).json({message: "Error Authenticating user: "+ e});
+  }
+}, authUserRouter);
